@@ -29,11 +29,13 @@ class User extends Authenticatable
         'password',
     ];
 
+    // Relation with book table
     public function book()
     {
         return $this->hasMany('App\Book');
     }
 
+    // Relation with token table
     public function token()
     {
         return $this->hasOne('App\TokenUser');

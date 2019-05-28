@@ -24,7 +24,3 @@ Route::group(['prefix' => 'books'], function(){
 		Route::get('/{id}/delete', 'Api\BookController@destroy')->name('books.delete');
 	});
 });
-
-// Route::middleware('auth:api')->get('/user', function (Request $request) {
-//     return $request->user();
-// });

@@ -17,19 +17,17 @@ class BookController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        // Check for limit request
+        if ($request->limit) {
+            $limit = $request->limit;
+        } else {
+            $limit = 10;
+        }
+        // Get books data
+        $books = Book::paginate($limit);
+        return response()->json(['success' => $books], $this->successStatus);
     }
 
     /**
@@ -53,6 +51,7 @@ class BookController extends Controller
                 'message' => $validator->messages(),
             ]);
         } else {
+            // Add new book
             $book           = new Book;
             $book->title    = $request->title; 
             $book->desc     = $request->content;
@@ -62,11 +61,7 @@ class BookController extends Controller
             if($book->save()){
                 return response()->json(['success' => 'Book successfully added!'], $this->successStatus); 
             } 
-            else{ 
-                return response()->json(['error'=> 'Unauthorised'], 401); 
-            }
         }
-
     }
 
     /**
@@ -77,25 +72,11 @@ class BookController extends Controller
      */
     public function show($id)
     {
+        // Find the book
         $book = Book::find($id);
-        if(!empty($book)){
+        if($book){
             return response()->json(['success' => $book], $this->successStatus); 
-        } 
-        else{ 
-            return response()->json(['error'=>'Unauthorised'], 401); 
-        } 
-
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        }
     }
 
     /**
@@ -120,8 +101,10 @@ class BookController extends Controller
                 'message' => $validator->messages(),
             ]);
         } else {
+            // Find the book
             $book = Book::find($id);
             if($book){
+                // Update book data
                 $book_data = [
                     'title'      => $request->title,
                     'desc'       => $request->content,
@@ -133,9 +116,6 @@ class BookController extends Controller
                 return response()->json(['success' => 'Successfully Updated!'], $this->successStatus); 
             } 
         }
-
-        return response()->json(['error'=> 'Unauthorised'], 401); 
-
     }
 
     /**
@@ -146,15 +126,15 @@ class BookController extends Controller
      */
     public function destroy($id)
     {
+        // Find the book
         $book = Book::find($id);
         if($book){
+            // Delete if exist
             if($book->delete()){
                 return response()->json(['success' => 'Successfully Deleted!'], $this->successStatus); 
             }
         } else {
             return response()->json(['message' => "Can't found the book!"]);
         }
-        
-        return response()->json(['error' => 'Unauthorised'], 401); 
     }
 }

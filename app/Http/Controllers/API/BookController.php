@@ -6,6 +6,7 @@ use App\Book;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class BookController extends Controller
 {
@@ -39,18 +40,33 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $book = new Book;
-        $book->title = $request->title; 
-        $book->desc = $request->content;
-        $book->created_by = Auth::user()->id;
-        $book->active = 1;
-        $book->created_at = now();
-        if($book->save()){
-            return response()->json(['success' => 'Book successfully added!'], $this->successStatus); 
-        } 
-        else{ 
-            return response()->json(['error'=> 'Unauthorised'], 401); 
+        // Validation
+        $rules = [
+            'title'=>'required',
+            'content'=>'required'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->messages(),
+            ]);
+        } else {
+            $book           = new Book;
+            $book->title    = $request->title; 
+            $book->desc     = $request->content;
+            $book->created_by = Auth::user()->id;
+            $book->active   = 1;
+            $book->created_at = now();
+            if($book->save()){
+                return response()->json(['success' => 'Book successfully added!'], $this->successStatus); 
+            } 
+            else{ 
+                return response()->json(['error'=> 'Unauthorised'], 401); 
+            }
         }
+
     }
 
     /**
@@ -91,7 +107,35 @@ class BookController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // Validation
+        $rules = [
+            'title'=>'required',
+            'content'=>'required'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => $validator->messages(),
+            ]);
+        } else {
+            $book = Book::find($id);
+            if($book){
+                $book_data = [
+                    'title'      => $request->title,
+                    'desc'       => $request->content,
+                    'updated_at' => now(),
+                    'updated_by' => Auth::user()->id
+                ];
+                $book->update($book_data);
+
+                return response()->json(['success' => 'Successfully Updated!'], $this->successStatus); 
+            } 
+        }
+
+        return response()->json(['error'=> 'Unauthorised'], 401); 
+
     }
 
     /**
@@ -102,6 +146,15 @@ class BookController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $book = Book::find($id);
+        if($book){
+            if($book->delete()){
+                return response()->json(['success' => 'Successfully Deleted!'], $this->successStatus); 
+            }
+        } else {
+            return response()->json(['message' => "Can't found the book!"]);
+        }
+        
+        return response()->json(['error' => 'Unauthorised'], 401); 
     }
 }

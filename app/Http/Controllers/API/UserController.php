@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    public $successStatus = 200;
     private $tokenAPI;
 
     public function __construct()

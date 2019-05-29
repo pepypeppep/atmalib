@@ -76,6 +76,8 @@ class BookController extends Controller
         $book = Book::find($id);
         if($book){
             return response()->json(['success' => $book], $this->successStatus); 
+        } else {
+            return response()->json(['message' => "Can't found the book!"]);
         }
     }
 
@@ -114,7 +116,9 @@ class BookController extends Controller
                 $book->update($book_data);
 
                 return response()->json(['success' => 'Successfully Updated!'], $this->successStatus); 
-            } 
+            } else {
+                return response()->json(['message' => "Can't found the book!"]);
+            }
         }
     }
 

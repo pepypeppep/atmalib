@@ -18,6 +18,7 @@ class CreateTokenUsersTable extends Migration
             $table->integer('user_id')->unsigned();
             $table->string('token',50);
             $table->dateTime('created_at');
+            $table->dateTime('expired_at');
             $table->dateTime('updated_at')->nullable();
             $table->dateTime('deleted_at')->nullable();
 

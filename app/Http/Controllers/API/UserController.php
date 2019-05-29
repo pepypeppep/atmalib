@@ -46,11 +46,12 @@ class UserController extends Controller
                 if(password_verify($request->password, $user->password)) {
                     if($user->active==1){
                         // Verity token
-                        $login = TokenUser::find($user->id);
+                        $login = TokenUser::withoutGlobalScope('expired_at')->where('user_id',$user->id)->first();
                         if($login){
                             // Update Token
                             $token_data = [
                                 'token'      => $this->tokenAPI,
+                                'expired_at' => date("Y-m-d H:i:s",strtotime("+15 minutes", strtotime(now()))),
                                 'updated_at' => now()
                             ];
                             $token_success = $login->update($token_data);
@@ -60,6 +61,7 @@ class UserController extends Controller
                             $u_token->user_id    = $user->id;
                             $u_token->token      = $this->tokenAPI;
                             $u_token->created_at = now();
+                            $u_token->expired_at = date("Y-m-d H:i:s",strtotime("+15 minutes", strtotime(now())));
                             $token_success = $u_token->save();
                         }
                         // Success login
